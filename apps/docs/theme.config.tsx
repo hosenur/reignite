@@ -1,6 +1,10 @@
 export default {
-    logo: <span>My Nextra Documentation</span>,
+    logo: <span>REIGNITE</span>,
     project: {
-        link: 'https://github.com/shuding/nextra'
+        link: 'https://github.com/hosenur/reignite'
+    },
+    color :{
+        hue: 250,
+        saturation: 50
     }
 }

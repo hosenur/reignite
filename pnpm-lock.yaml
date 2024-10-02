@@ -20,6 +20,15 @@ importers:
 
   apps/docs:
     dependencies:
+      '@fontsource/geist-mono':
+        specifier: ^5.1.0
+        version: 5.1.0
+      '@fontsource/geist-sans':
+        specifier: ^5.1.0
+        version: 5.1.0
+      lucide-react:
+        specifier: ^0.447.0
+        version: 0.447.0(react@18.3.1)
       next:
         specifier: 14.2.14
         version: 14.2.14(react-dom@18.3.1)(react@18.3.1)
@@ -1168,6 +1177,14 @@ packages:
 
   /@floating-ui/utils@0.2.8:
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
+    dev: false
+
+  /@fontsource/geist-mono@5.1.0:
+    resolution: {integrity: sha512-MDFgmKUdDbV357vD2bOZAro597Nd2md01GAdr3GSZteCJQdPT/UhHUBCAxl9KUiH03aMPFM9Rx7x8/EtrJmpKg==}
+    dev: false
+
+  /@fontsource/geist-sans@5.1.0:
+    resolution: {integrity: sha512-4AI/UxIcZiYgK6/cTo4R9oM4VHHLcFdHVv7m2+M42VyY16hhKJADrGe4HPjTxvolmce2IZX/jc6sFJ+GkLB64w==}
     dev: false
 
   /@headlessui/react@2.1.8(react-dom@18.3.1)(react@18.3.1):

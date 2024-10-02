@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/geist-mono": "^5.1.0",
+    "@fontsource/geist-sans": "^5.1.0",
+    "lucide-react": "^0.447.0",
     "next": "14.2.14",
     "nextra": "^3.0.2",
     "nextra-theme-docs": "^3.0.2",

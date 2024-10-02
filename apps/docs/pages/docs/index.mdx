@@ -1,1 +1,8 @@
-# docs index
+'Sell Shovels' during the gold rush' - this is what was followed by many people on twitter which made them build their own starter template for SaaS applications and sell it for a hefty price
+Reignite packs a Remix Web App with Nextra Docs + Marketing  site.
+It comes with few pre-configured packages for styling and authentication.
+#### Remix
+Remix serves as the main web application for this template. Running remix on any infra is easier than NextJS, also it has some pretty established data loading, and action patterns.
+
+#### BullMQ
+BullMQ serves as the broker for the worker pattern. There is a @reignite/queues package where you canc reate queues, import them in your web app, and pass jobs, which then can be handled by a node server, provided everything is connected to the same Redis Server.
