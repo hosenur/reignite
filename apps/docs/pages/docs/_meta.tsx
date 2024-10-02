@@ -1,4 +1,4 @@
-import { Box, Boxes, Package, PencilRuler, Scan, Zap } from "lucide-react";
+import { Box, Package, PencilRuler, Zap } from "lucide-react";
 
 export default {
   index: {
