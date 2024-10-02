@@ -12,5 +12,9 @@
   "dependencies": {
     "@reignite/db": "workspace*",
     "better-auth": "0.2.8-beta.1"
+  },
+  "exports" :{
+    "client" : "./src/auth.client.ts",
+    "server" : "./src/auth.server.ts"
   }
 }
