@@ -7,6 +7,7 @@ import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { authClient } from "~/lib/auth.client"
 import { guestRoute } from "~/lib/auth.server"
+import { z } from "zod"
 export async function loader({ request }: LoaderFunctionArgs) {
     const headers = new Headers(request.headers)
     await guestRoute(headers)
@@ -20,6 +21,17 @@ export default function SignUpPage() {
     })
 
     const handleSubmit = async () => {
+        const signUpSchema = z.object({
+            name: z.string().min(3),
+            email: z.string().email(),
+            password: z.string().min(8)
+        })
+        const parsedData = await signUpSchema.safeParseAsync(credentials)
+        console.log(credentials)
+        if (!parsedData.success) {
+            return toast.error(parsedData.error.errors[0].message)
+            // return toast.error(parsedData.error)
+        }
         await authClient.signUp.email(credentials, {
             onSuccess(ctx) {
                 toast.success("Successfully registered")
@@ -45,6 +57,8 @@ export default function SignUpPage() {
                             <Label htmlFor="name">Name</Label>
                             <Input
                                 name="name"
+                                value={credentials.name}
+                                onChange={(e) => setCredentials({ ...credentials, name: e.target.value })}
                                 id="name"
                                 type="text"
                                 placeholder="Hosenur Rahaman"
@@ -55,6 +69,8 @@ export default function SignUpPage() {
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 name="email"
+                                value={credentials.email}
+                                onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                                 id="email"
                                 type="email"
                                 placeholder="hosenur.dev@gmail.com"
@@ -73,6 +89,8 @@ export default function SignUpPage() {
                             </div>
                             <Input
                                 name="password"
+                                value={credentials.password}
+                                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                                 id="password"
                                 type="password"
                                 required

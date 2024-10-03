@@ -23,6 +23,7 @@ model User {
   updatedAt     DateTime
   Session       Session[]
   Account       Account[]
+  Passkey       Passkey[]
 
   @@unique([email])
   @@map("user")
@@ -52,4 +53,20 @@ model Account {
   password     String?
 
   @@map("account")
+}
+
+model Passkey {
+  id             String    @id
+  name           String?
+  publicKey      String
+  userId         String
+  users          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webauthnUserID String
+  counter        Int
+  deviceType     String
+  backedUp       Boolean
+  transports     String?
+  createdAt      DateTime?
+
+  @@map("passkey")
 }

@@ -4,11 +4,7 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950 font-rubik;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply font-rubik;
 }
 
 @layer base {

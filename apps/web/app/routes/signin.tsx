@@ -17,6 +17,7 @@ export default function SignInPage() {
     email: "",
     password: "",
   })
+
   const handleSubmit = async () => {
     await authClient.signIn.email(credentials, {
       onSuccess(ctx) {
@@ -28,6 +29,7 @@ export default function SignInPage() {
     })
     console.log(credentials)
   }
+  
   return (
     <div className="w-full max-w-full overflow-x-hidden lg:grid lg:min-h-[600px] lg:grid-cols-5  max-h-screen">
       <div className="flex items-center justify-center py-12 lg:col-span-2">
