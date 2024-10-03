@@ -72,6 +72,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@fontsource-variable/rubik':
+        specifier: ^5.1.0
+        version: 5.1.0
+      '@fontsource/geist-mono':
+        specifier: ^5.1.0
+        version: 5.1.0
       '@radix-ui/react-icons':
         specifier: ^1.3.0
         version: 1.3.0(react@18.3.1)
@@ -94,8 +100,8 @@ importers:
         specifier: ^2.12.1
         version: 2.12.1(typescript@5.6.2)
       better-auth:
-        specifier: 0.2.9-beta.1
-        version: 0.2.9-beta.1(@babel/core@7.25.2)(react@18.3.1)(solid-js@1.9.1)(vue@3.5.10)
+        specifier: 0.2.6-beta.9
+        version: 0.2.6-beta.9(@babel/core@7.25.2)(react@18.3.1)(solid-js@1.9.1)(vue@3.5.10)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -126,6 +132,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.13)
+      uvcanvas:
+        specifier: ^0.2.1
+        version: 0.2.1(@types/react@18.3.10)(react-dom@18.3.1)(react@18.3.1)
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -416,7 +425,6 @@ packages:
   /@babel/helper-plugin-utils@7.25.7:
     resolution: {integrity: sha512-eaPZai0PiqCi09pPs3pAFfl/zYgGaE6IdXtYvmf0qlcDTd3WCtO7JWCcRd64e0EQrcYgiHibEZnOGsSY4QSgaw==}
     engines: {node: '>=6.9.0'}
-    dev: false
 
   /@babel/helper-replace-supers@7.25.0(@babel/core@7.25.2):
     resolution: {integrity: sha512-q688zIvQVYtZu+i2PsdIu/uWGRpfxzr5WESsfpShfZECkO+d2o+WROWezCi/Q6kJ0tfPa5+pUGUlfx2HhrA3Bg==}
@@ -474,7 +482,6 @@ packages:
   /@babel/helper-validator-option@7.25.7:
     resolution: {integrity: sha512-ytbPLsm+GjArDYXJ8Ydr1c/KJuutjF2besPNbIZnZ6MKUxi/uTA22t2ymmA4WFjZFpjiAMO0xuuJPqK2nvDVfQ==}
     engines: {node: '>=6.9.0'}
-    dev: false
 
   /@babel/helpers@7.25.6:
     resolution: {integrity: sha512-Xg0tn4HcfTijTwfDwYlvVCl43V6h4KyVVX2aEm4qdO/PC6L2YvzLHFdmxhoeSA3eslcE6+ZVXHgWwopXYLNq4Q==}
@@ -535,6 +542,7 @@ packages:
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
+    dev: true
 
   /@babel/plugin-syntax-jsx@7.25.7(@babel/core@7.25.2):
     resolution: {integrity: sha512-ruZOnKO+ajVL/MVx+PwNBPOkrnXTXoWMtte1MBpegfCArhqOe3Bj52avVj1huLLxNKYKXYaSxZ2F+woK1ekXfw==}
@@ -544,7 +552,6 @@ packages:
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.25.7
-    dev: false
 
   /@babel/plugin-syntax-typescript@7.25.4(@babel/core@7.25.2):
     resolution: {integrity: sha512-uMOCoHVU52BsSWxPOMVv5qKRdeSlPuImUCB2dlPuBSU+W2/ROE7/Zg8F2Kepbk+8yBa68LlRKxO+xgEVWorsDg==}
@@ -656,9 +663,9 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/helper-plugin-utils': 7.24.8
-      '@babel/helper-validator-option': 7.24.8
-      '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.25.2)
+      '@babel/helper-plugin-utils': 7.25.7
+      '@babel/helper-validator-option': 7.25.7
+      '@babel/plugin-syntax-jsx': 7.25.7(@babel/core@7.25.2)
       '@babel/plugin-transform-modules-commonjs': 7.24.8(@babel/core@7.25.2)
       '@babel/plugin-transform-typescript': 7.25.2(@babel/core@7.25.2)
     transitivePeerDependencies:
@@ -1299,6 +1306,10 @@ packages:
 
   /@floating-ui/utils@0.2.8:
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
+    dev: false
+
+  /@fontsource-variable/rubik@5.1.0:
+    resolution: {integrity: sha512-gmh3xts3ARd0ktWW/VX+MVxhJr6TxHVeGLsQEaQXDVxvuNjn5WRucfKfXK3EVN2BcgRxUe1Fctv/v9zgEd0DUg==}
     dev: false
 
   /@fontsource/geist-mono@5.1.0:
@@ -3365,7 +3376,7 @@ packages:
   /@vue/compiler-core@3.5.10:
     resolution: {integrity: sha512-iXWlk+Cg/ag7gLvY0SfVucU8Kh2CjysYZjhhP70w9qI4MvSox4frrP+vDGvtQuzIcgD8+sxM6lZvCtdxGunTAA==}
     dependencies:
-      '@babel/parser': 7.25.6
+      '@babel/parser': 7.25.7
       '@vue/shared': 3.5.10
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -3382,7 +3393,7 @@ packages:
   /@vue/compiler-sfc@3.5.10:
     resolution: {integrity: sha512-to8E1BgpakV7224ZCm8gz1ZRSyjNCAWEplwFMWKlzCdP9DkMKhRRwt0WkCjY7jkzi/Vz3xgbpeig5Pnbly4Tow==}
     dependencies:
-      '@babel/parser': 7.25.6
+      '@babel/parser': 7.25.7
       '@vue/compiler-core': 3.5.10
       '@vue/compiler-dom': 3.5.10
       '@vue/compiler-ssr': 3.5.10
@@ -3721,8 +3732,8 @@ packages:
     dependencies:
       safe-buffer: 5.1.2
 
-  /better-auth@0.2.9-beta.1(@babel/core@7.25.2)(react@18.3.1)(solid-js@1.9.1)(vue@3.5.10):
-    resolution: {integrity: sha512-++/ivkNJFQzcf046C5sjerfRkAluampW8UUfYiTHYXHwyNTRuf1S0m+mBmHx2FPSbPvolpJg7wL4XPR9w4qqRg==}
+  /better-auth@0.2.6-beta.9(@babel/core@7.25.2)(react@18.3.1)(solid-js@1.9.1)(vue@3.5.10):
+    resolution: {integrity: sha512-m9wKwbqDJZbx9TxZ1R7g43GGou2gyhbrjimTWgYQgnfld0U4lm9ZAtsZlgmYYiP+8IceIJYviFjpVZhuy7Hjlw==}
     hasBin: true
     dependencies:
       '@antfu/ni': 0.23.0
@@ -3752,7 +3763,6 @@ packages:
       execa: 9.4.0
       jose: 5.9.3
       kysely: 0.27.4
-      nanoid: 5.0.7
       nanoquery: 1.3.0
       nanostores: 0.11.3
       oauth4webapi: 2.17.0
@@ -8431,12 +8441,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  /nanoid@5.0.7:
-    resolution: {integrity: sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==}
-    engines: {node: ^18 || >=20}
-    hasBin: true
-    dev: false
-
   /nanoquery@1.3.0:
     resolution: {integrity: sha512-eZv8Ct2PZn/CdOmD2BgLNwjhhPmxg4tXhygp0roaRer5RqBFB0gm0wHIb5VZcL0CS0r+yWQ1kBVYG7S1jUyG0A==}
     dependencies:
@@ -8786,6 +8790,10 @@ packages:
       define-properties: 1.2.1
       es-object-atoms: 1.0.0
     dev: true
+
+  /ogl@1.0.8:
+    resolution: {integrity: sha512-3LOqryx4qtWuQQT9QQL8yjGBNdqlonJeOwNY4+TwkrQhENYKegKt9pdWba3LzPSlGUWFTfeUDQoL9tSHMtKq3Q==}
+    dev: false
 
   /ohash@1.1.4:
     resolution: {integrity: sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==}
@@ -11108,6 +11116,14 @@ packages:
       punycode: 2.3.1
     dev: true
 
+  /use-sync-external-store@1.2.2(react@18.3.1):
+    resolution: {integrity: sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.3.1
+    dev: false
+
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -11127,6 +11143,21 @@ packages:
   /uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
+    dev: false
+
+  /uvcanvas@0.2.1(@types/react@18.3.10)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-JqhmyYGjHdZ32PgBlu99QVORutO0Avf2tvWfimyCwqG8gnU/IUkwiAexwlMqvD0Wr+C6DHy0vkkCj/KGd8UP9w==}
+    peerDependencies:
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      ogl: 1.0.8
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      zustand: 4.5.5(@types/react@18.3.10)(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
     dev: false
 
   /uvu@0.5.6:
@@ -11512,6 +11543,26 @@ packages:
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+    dev: false
+
+  /zustand@4.5.5(@types/react@18.3.10)(react@18.3.1):
+    resolution: {integrity: sha512-+0PALYNJNgK6hldkgDq2vLrw5f6g/jCInz52n9RTpropGgeAf/ioFUCdtsjCqu4gNhW9D01rUQBROoRjdzyn2Q==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      '@types/react': '>=16.8'
+      immer: '>=9.0.6'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      '@types/react': 18.3.10
+      react: 18.3.1
+      use-sync-external-store: 1.2.2(react@18.3.1)
     dev: false
 
   /zwitch@2.0.4:

@@ -1,25 +1,35 @@
-import { ActionFunctionArgs } from "@remix-run/node"
-import { Form, Link, useActionData } from "@remix-run/react"
-import { z } from 'zod'
+import { LoaderFunctionArgs } from "@remix-run/node"
+import { Link } from "@remix-run/react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { authClient } from "~/lib/auth.client"
-export async function action({ request }: ActionFunctionArgs) {
-    const formPayload = Object.fromEntries(await request.formData())
-    const signUpSchema = z.object({
-        name: z.string(),
-        email: z.string().email(),
-        password: z.string().min(8),
-    })
-    const formData = await signUpSchema.safeParseAsync(formPayload)
-    if (!formData.success) {
-        return formData
-    }
-    await authClient.signUp.email(formData.data)
+import { guestRoute } from "~/lib/auth.server"
+export async function loader({ request }: LoaderFunctionArgs) {
+    const headers = new Headers(request.headers)
+    await guestRoute(headers)
+    return null;
 }
 export default function SignUpPage() {
-    const actionData = useActionData<typeof action>()
+    const [credentials, setCredentials] = useState({
+        name: "",
+        email: "",
+        password: "",
+    })
+
+    const handleSubmit = async () => {
+        await authClient.signUp.email(credentials, {
+            onSuccess(ctx) {
+                toast.success("Successfully registered")
+            },
+            onError(ctx) {
+                toast.error(ctx.error.message)
+            }
+        })
+
+    }
     return (
         <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px] max-h-screen">
             <div className="flex items-center justify-center py-12">
@@ -30,14 +40,24 @@ export default function SignUpPage() {
                             Enter your email below to login to your account
                         </p>
                     </div>
-                    <Form className="grid gap-4" method="post">
+                    <div className="grid gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="name">Name</Label>
+                            <Input
+                                name="name"
+                                id="name"
+                                type="text"
+                                placeholder="Hosenur Rahaman"
+                                required
+                            />
+                        </div>
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 name="email"
                                 id="email"
                                 type="email"
-                                placeholder="m@example.com"
+                                placeholder="hosenur.dev@gmail.com"
                                 required
                             />
                         </div>
@@ -58,13 +78,12 @@ export default function SignUpPage() {
                                 required
                             />
                         </div>
-                        <Button type="submit" className="w-full">
+                        <Button
+                            onClick={handleSubmit}
+                            type="submit" className="w-full">
                             Login
                         </Button>
-                        <Button variant="outline" className="w-full">
-                            Login with Google
-                        </Button>
-                    </Form>
+                    </div>
                     <div className="mt-4 text-center text-sm">
                         Don&apos;t have an account?{" "}
                         <Link to="#" className="underline">
@@ -74,11 +93,8 @@ export default function SignUpPage() {
                 </div>
             </div>
             <div className="hidden bg-muted lg:block">
-                <img
-                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80"
-                    className="h-screen w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                />
             </div>
         </div>
     )
 }
+
