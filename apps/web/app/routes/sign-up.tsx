@@ -1,9 +1,16 @@
-import { ActionFunctionArgs, Form, Link } from 'react-router'
+import { ActionFunctionArgs, Form, Link, LoaderFunctionArgs } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { authClient } from '~/lib/auth-client'
 import { z } from 'zod'
+import { auth, guestRoute } from '~/lib/auth-server'
+
+export async function loader({ request }: LoaderFunctionArgs) {
+    await guestRoute(new Headers(request.headers))
+    const session = await auth.api.getSession({ headers: request.headers })
+    return { session }
+}
 
 export async function clientAction({ request }: ActionFunctionArgs) {
     const signInSchema = z.object({

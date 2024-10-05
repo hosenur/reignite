@@ -22,7 +22,7 @@ export async function clientAction({ request }: ActionFunctionArgs) {
     if (parsedData.error) {
         throw parsedData.error
     }
-    authClient.signIn.email({
+    await authClient.signIn.email({
         ...parsedData.data,
         callbackURL: '/profile'
     }, {
