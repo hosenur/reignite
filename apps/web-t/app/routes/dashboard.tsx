@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import Omg from '~/components/omg'
 import UserCard from '~/components/user-card'
 import { auth, protectedRoute } from '~/lib/auth.server'
 export const loader = async ({ request }: LoaderFunctionArgs) => {

@@ -1,10 +1,11 @@
-import { redirect } from "@remix-run/node";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { VerifyEmail } from "../../emails/verify-email";
 import { prisma } from "./prisma";
 import { resend } from "./resend";
 import { passkey } from "better-auth/plugins"
+import { redirect } from "react-router";
+
 
 
 
