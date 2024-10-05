@@ -30,6 +30,6 @@ export const protectedRoute = async (headers: Headers) => {
 export const guestRoute = async (headers: Headers) => {
     const session = await auth.api.getSession({ headers: headers })
     if (session) {
-        throw redirect('/dashboard')
+        throw redirect('/profile')
     }
 }

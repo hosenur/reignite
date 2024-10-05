@@ -23,8 +23,8 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { PasswordInput } from "~/components/ui/password-input";
-import { authClient, signOut, useSession } from "~/lib/auth.client";
-import { Session } from "~/lib/auth.types";
+import { authClient, signOut, useSession } from "~/lib/auth-client";
+import { Session } from "~/lib/auth-types";
 import {
     Edit,
     Fingerprint,
@@ -39,7 +39,7 @@ import {
     Trash,
     X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UAParser } from "ua-parser-js";
 import {
@@ -53,8 +53,11 @@ import {
 import QRCode from "react-qr-code";
 import CopyButton from "~/components/ui/copy-button";
 import useSWR from "swr";
+import { useRevalidator } from "react-router";
 
-export default function UserCard({ session }: { session: Session | null }) {
+export default function UserCard() {
+    const revalidator = useRevalidator();
+    const { data: session } = useSession()
     const [ua, setUa] = useState<UAParser.UAParserInstance>();
 
 
@@ -86,7 +89,6 @@ export default function UserCard({ session }: { session: Session | null }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>User</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-8 grid-cols-1">
                 <div className="flex items-start justify-between">
@@ -180,6 +182,7 @@ export default function UserCard({ session }: { session: Session | null }) {
                                                 } else {
                                                     toast.success("Session terminated successfully");
                                                 }
+                                                revalidator.revalidate()
 
                                                 setIsTerminating(undefined);
                                             }}
@@ -202,7 +205,7 @@ export default function UserCard({ session }: { session: Session | null }) {
                         <p className="text-sm">Passkeys</p>
                         <div className="flex gap-2 flex-wrap">
                             <AddPasskey />
-                            {/* <ListPasskeys /> */}
+                            <ListPasskeys />
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -660,123 +663,123 @@ function AddPasskey() {
     );
 }
 
-// function ListPasskeys() {
-//     const { data, error } = authClient.useListPasskeys();
-//     const [isOpen, setIsOpen] = useState(false);
-//     const [passkeyName, setPasskeyName] = useState("");
+function ListPasskeys() {
+    const { data, error } = authClient.useListPasskeys();
+    const [isOpen, setIsOpen] = useState(false);
+    const [passkeyName, setPasskeyName] = useState("");
 
-//     const handleAddPasskey = async () => {
-//         if (!passkeyName) {
-//             toast.error("Passkey name is required");
-//             return;
-//         }
-//         setIsLoading(true);
-//         const res = await authClient.passkey.addPasskey({
-//             name: passkeyName,
-//         });
-//         setIsLoading(false);
-//         if (res?.error) {
-//             toast.error(res?.error.message);
-//         } else {
-//             toast.success("Passkey added successfully. You can now use it to login.");
-//         }
-//     };
-//     const [isLoading, setIsLoading] = useState(false);
-//     const [isDeletePasskey, setIsDeletePasskey] = useState<boolean>(false);
-//     return (
-//         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-//             <DialogTrigger asChild>
-//                 <Button variant="outline" className="text-xs md:text-sm">
-//                     <Fingerprint className="mr-2 h-4 w-4" />
-//                     <span>Passkeys {data?.length ? `[${data?.length}]` : ""}</span>
-//                 </Button>
-//             </DialogTrigger>
-//             <DialogContent className="sm:max-w-[425px] w-11/12">
-//                 <DialogHeader>
-//                     <DialogTitle>Passkeys</DialogTitle>
-//                     <DialogDescription>List of passkeys</DialogDescription>
-//                 </DialogHeader>
-//                 {data?.length ? (
-//                     <Table>
-//                         <TableHeader>
-//                             <TableRow>
-//                                 <TableHead>Name</TableHead>
-//                             </TableRow>
-//                         </TableHeader>
-//                         <TableBody>
-//                             {data.map((passkey) => (
-//                                 <TableRow
-//                                     key={passkey.id}
-//                                     className="flex  justify-between items-center"
-//                                 >
-//                                     <TableCell>{passkey.name || "My Passkey"}</TableCell>
-//                                     <TableCell className="text-right">
-//                                         <button
-//                                             onClick={async () => {
-//                                                 const res = await authClient.passkey.deletePasskey({
-//                                                     id: passkey.id,
-//                                                     fetchOptions: {
-//                                                         onRequest: () => {
-//                                                             setIsDeletePasskey(true);
-//                                                         },
-//                                                         onSuccess: () => {
-//                                                             toast("Passkey deleted successfully");
-//                                                             setIsDeletePasskey(false);
-//                                                         },
-//                                                         onError: (error) => {
-//                                                             toast.error(error.error.message);
-//                                                             setIsDeletePasskey(false);
-//                                                         },
-//                                                     },
-//                                                 });
-//                                             }}
-//                                         >
-//                                             {isDeletePasskey ? (
-//                                                 <Loader2 size={15} className="animate-spin" />
-//                                             ) : (
-//                                                 <Trash
-//                                                     size={15}
-//                                                     className="cursor-pointer text-red-600"
-//                                                 />
-//                                             )}
-//                                         </button>
-//                                     </TableCell>
-//                                 </TableRow>
-//                             ))}
-//                         </TableBody>
-//                     </Table>
-//                 ) : (
-//                     <p className="text-sm text-muted-foreground">No passkeys found</p>
-//                 )}
-//                 {!data?.length && (
-//                     <div className="flex flex-col gap-2">
-//                         <div className="flex flex-col gap-2">
-//                             <Label htmlFor="passkey-name" className="text-sm">
-//                                 New Passkey
-//                             </Label>
-//                             <Input
-//                                 id="passkey-name"
-//                                 value={passkeyName}
-//                                 onChange={(e) => setPasskeyName(e.target.value)}
-//                                 placeholder="My Passkey"
-//                             />
-//                         </div>
-//                         <Button type="submit" onClick={handleAddPasskey} className="w-full">
-//                             {isLoading ? (
-//                                 <Loader2 size={15} className="animate-spin" />
-//                             ) : (
-//                                 <>
-//                                     <Fingerprint className="mr-2 h-4 w-4" />
-//                                     Create Passkey
-//                                 </>
-//                             )}
-//                         </Button>
-//                     </div>
-//                 )}
-//                 <DialogFooter>
-//                     <Button onClick={() => setIsOpen(false)}>Close</Button>
-//                 </DialogFooter>
-//             </DialogContent>
-//         </Dialog>
-//     );
-// }
+    const handleAddPasskey = async () => {
+        if (!passkeyName) {
+            toast.error("Passkey name is required");
+            return;
+        }
+        setIsLoading(true);
+        const res = await authClient.passkey.addPasskey({
+            name: passkeyName,
+        });
+        setIsLoading(false);
+        if (res?.error) {
+            toast.error(res?.error.message);
+        } else {
+            toast.success("Passkey added successfully. You can now use it to login.");
+        }
+    };
+    const [isLoading, setIsLoading] = useState(false);
+    const [isDeletePasskey, setIsDeletePasskey] = useState<boolean>(false);
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="text-xs md:text-sm">
+                    <Fingerprint className="mr-2 h-4 w-4" />
+                    <span>Passkeys {data?.length ? `[${data?.length}]` : ""}</span>
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] w-11/12">
+                <DialogHeader>
+                    <DialogTitle>Passkeys</DialogTitle>
+                    <DialogDescription>List of passkeys</DialogDescription>
+                </DialogHeader>
+                {data?.length ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data.map((passkey) => (
+                                <TableRow
+                                    key={passkey.id}
+                                    className="flex  justify-between items-center"
+                                >
+                                    <TableCell>{passkey.name || "My Passkey"}</TableCell>
+                                    <TableCell className="text-right">
+                                        <button
+                                            onClick={async () => {
+                                                const res = await authClient.passkey.deletePasskey({
+                                                    id: passkey.id,
+                                                    fetchOptions: {
+                                                        onRequest: () => {
+                                                            setIsDeletePasskey(true);
+                                                        },
+                                                        onSuccess: () => {
+                                                            toast("Passkey deleted successfully");
+                                                            setIsDeletePasskey(false);
+                                                        },
+                                                        onError: (error) => {
+                                                            toast.error(error.error.message);
+                                                            setIsDeletePasskey(false);
+                                                        },
+                                                    },
+                                                });
+                                            }}
+                                        >
+                                            {isDeletePasskey ? (
+                                                <Loader2 size={15} className="animate-spin" />
+                                            ) : (
+                                                <Trash
+                                                    size={15}
+                                                    className="cursor-pointer text-red-600"
+                                                />
+                                            )}
+                                        </button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : (
+                    <p className="text-sm text-muted-foreground">No passkeys found</p>
+                )}
+                {!data?.length && (
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="passkey-name" className="text-sm">
+                                New Passkey
+                            </Label>
+                            <Input
+                                id="passkey-name"
+                                value={passkeyName}
+                                onChange={(e) => setPasskeyName(e.target.value)}
+                                placeholder="My Passkey"
+                            />
+                        </div>
+                        <Button type="submit" onClick={handleAddPasskey} className="w-full">
+                            {isLoading ? (
+                                <Loader2 size={15} className="animate-spin" />
+                            ) : (
+                                <>
+                                    <Fingerprint className="mr-2 h-4 w-4" />
+                                    Create Passkey
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                )}
+                <DialogFooter>
+                    <Button onClick={() => setIsOpen(false)}>Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}

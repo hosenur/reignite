@@ -1,9 +1,16 @@
-import { ActionFunctionArgs, Form, Link } from 'react-router'
+import { ActionFunctionArgs, Form, Link, LoaderFunctionArgs, redirect } from 'react-router'
+import { toast } from 'sonner'
+import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { authClient } from '~/lib/auth.client'
-import { z } from 'zod'
+import { authClient } from '~/lib/auth-client'
+import { auth, guestRoute } from '~/lib/auth-server'
+export async function loader({ request }: LoaderFunctionArgs) {
+    await guestRoute(new Headers(request.headers))
+    const session = await auth.api.getSession({ headers: request.headers })
+    return { session }
+}
 
 export async function clientAction({ request }: ActionFunctionArgs) {
     const signInSchema = z.object({
@@ -15,10 +22,10 @@ export async function clientAction({ request }: ActionFunctionArgs) {
     if (parsedData.error) {
         throw parsedData.error
     }
-    authClient.signIn.email(parsedData.data,{
-        onSuccess(ctx) {
-            console.log(ctx)
-        },
+    authClient.signIn.email({
+        ...parsedData.data,
+        callbackURL: '/profile'
+    }, {
         onError(ctx) {
             console.log(ctx)
         }
