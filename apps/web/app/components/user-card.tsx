@@ -1,28 +1,15 @@
 
-import { MobileIcon } from "@radix-ui/react-icons";
-import {
-    Edit,
-    Fingerprint,
-    Laptop,
-    Loader2,
-    LogOut,
-    Plus,
-    Trash,
-    X
-} from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
-import { toast } from "sonner";
-import { UAParser } from "ua-parser-js";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
     Card,
+    CardDescription,
     CardContent,
     CardFooter,
     CardHeader,
-    CardTitle
+    CardTitle,
 } from "~/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "~/components/ui/alert";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
     Dialog,
@@ -36,9 +23,25 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { PasswordInput } from "~/components/ui/password-input";
-import { authClient, signOut, user } from "~/lib/auth.client";
+import { authClient, signOut, useSession } from "~/lib/auth.client";
 import { Session } from "~/lib/auth.types";
-// import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    Edit,
+    Fingerprint,
+    Laptop,
+    Loader2,
+    LogOut,
+    Plus,
+    QrCode,
+    ShieldCheck,
+    ShieldOff,
+    Tablet,
+    Trash,
+    X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { UAParser } from "ua-parser-js";
 import {
     Table,
     TableBody,
@@ -47,11 +50,11 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table";
-// import QRCode from "react-qr-code";
-// import CopyButton from "@/components/ui/copy-button";
+import QRCode from "react-qr-code";
+import CopyButton from "~/components/ui/copy-button";
+import useSWR from "swr";
 
-export default function UserCard({ session, activeSessions }: { session: Session | null, activeSessions: Session["session"][] }) {
-
+export default function UserCard({ session }: { session: Session | null }) {
     const [ua, setUa] = useState<UAParser.UAParserInstance>();
 
 
@@ -61,10 +64,25 @@ export default function UserCard({ session, activeSessions }: { session: Session
 
     const [isTerminating, setIsTerminating] = useState<string>();
 
+    const { data: qr } = useSWR("/totp-uri", async () => {
+        if (!session?.user.twoFactorEnabled) return null;
+        const res = await authClient.twoFactor.getTotpUri();
+        if (res.error) {
+            throw res.error;
+        }
+        return res.data;
+    });
 
+    const [isPendingTwoFa, setIsPendingTwoFa] = useState<boolean>(false);
+    const [twoFaPassword, setTwoFaPassword] = useState<string>("");
+    const [twoFactorDialog, setTwoFactorDialog] = useState<boolean>(false);
     const [isSignOut, setIsSignOut] = useState<boolean>(false);
     const [emailVerificationPending, setEmailVerificationPending] =
         useState<boolean>(false);
+
+    const { data: activeSessions } = useSWR("/sessions", async () => {
+        return (await authClient.user.listSessions()).data;
+    });
     return (
         <Card>
             <CardHeader>
@@ -133,30 +151,28 @@ export default function UserCard({ session, activeSessions }: { session: Session
                     </Alert>
                 )}
 
-                <div className=" w-max gap-1 flex flex-col">
+                <div className="w-max gap-1 flex flex-col">
                     <p className="text-xs font-medium ">Active Sessions</p>
                     {activeSessions
-                        .filter((session) => session.userAgent)
-                        .map((session) => {
+                        ?.filter((activeSession) => activeSession.userAgent)
+                        .map((activeSession) => {
                             return (
-                                <div key={session.id}>
+                                <div key={activeSession.id}>
                                     <div className="flex items-center gap-2 text-sm  text-black font-medium dark:text-white">
-                                        {new UAParser(session.userAgent).getDevice().type ===
+                                        {new UAParser(activeSession.userAgent).getDevice().type ===
                                             "mobile" ? (
-                                            <MobileIcon />
+                                            <Tablet size={16} />
                                         ) : (
                                             <Laptop size={16} />
                                         )}
-                                        <Suspense fallback={<div>Loading...</div>}>
-                                        {new UAParser(session.userAgent).getOS().name},{" "}
-                                        {new UAParser(session.userAgent).getBrowser().name}
-                                        </Suspense>
+                                        {new UAParser(activeSession?.userAgent).getOS().name},{" "}
+                                        {new UAParser(activeSession?.userAgent).getBrowser().name}
                                         <button
                                             className="text-red-500 opacity-80  cursor-pointer text-xs border-muted-foreground border-red-600  underline "
                                             onClick={async () => {
-                                                setIsTerminating(session.id);
+                                                setIsTerminating(activeSession.id);
                                                 const res = await authClient.user.revokeSession({
-                                                    id: session.id,
+                                                    id: activeSession.id,
                                                 });
 
                                                 if (res.error) {
@@ -164,13 +180,13 @@ export default function UserCard({ session, activeSessions }: { session: Session
                                                 } else {
                                                     toast.success("Session terminated successfully");
                                                 }
-                                                // router.refresh();
+
                                                 setIsTerminating(undefined);
                                             }}
                                         >
-                                            {isTerminating === session.id ? (
+                                            {isTerminating === activeSession.id ? (
                                                 <Loader2 size={15} className="animate-spin" />
-                                            ) : session.id === session?.id ? (
+                                            ) : activeSession.id === session?.session.id ? (
                                                 "Sign Out"
                                             ) : (
                                                 "Terminate"
@@ -181,14 +197,138 @@ export default function UserCard({ session, activeSessions }: { session: Session
                             );
                         })}
                 </div>
-
-
                 <div className="border-y py-4 flex items-center flex-wrap justify-between gap-2">
                     <div className="flex flex-col gap-2">
                         <p className="text-sm">Passkeys</p>
                         <div className="flex gap-2 flex-wrap">
                             <AddPasskey />
                             {/* <ListPasskeys /> */}
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm">Two Factor</p>
+                        <div className="flex gap-2">
+                            {session?.user.twoFactorEnabled && (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="gap-2">
+                                            <QrCode size={16} />
+                                            <span className="md:text-sm text-xs">Scan QR Code</span>
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px] w-11/12">
+                                        <DialogHeader>
+                                            <DialogTitle>Scan QR Code</DialogTitle>
+                                            <DialogDescription>
+                                                Scan the QR code with your TOTP app
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex items-center justify-center">
+                                            <QRCode value={qr?.totpURI || ""} />
+                                        </div>
+                                        <div className="flex gap-2 items-center justify-center">
+                                            <p className="text-sm text-muted-foreground">
+                                                Copy URI to clipboard
+                                            </p>
+                                            <CopyButton textToCopy={qr?.totpURI || ""} />
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                            <Dialog open={twoFactorDialog} onOpenChange={setTwoFactorDialog}>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant={
+                                            session?.user.twoFactorEnabled ? "destructive" : "outline"
+                                        }
+                                        className="gap-2"
+                                    >
+                                        {session?.user.twoFactorEnabled ? (
+                                            <ShieldOff size={16} />
+                                        ) : (
+                                            <ShieldCheck size={16} />
+                                        )}
+                                        <span className="md:text-sm text-xs">
+                                            {session?.user.twoFactorEnabled
+                                                ? "Disable 2FA"
+                                                : "Enable 2FA"}
+                                        </span>
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px] w-11/12">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            {session?.user.twoFactorEnabled
+                                                ? "Disable 2FA"
+                                                : "Enable 2FA"}
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            {session?.user.twoFactorEnabled
+                                                ? "Disable the second factor authentication from your account"
+                                                : "Enable 2FA to secure your account"}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="password">Password</Label>
+                                        <PasswordInput
+                                            id="password"
+                                            placeholder="Password"
+                                            value={twoFaPassword}
+                                            onChange={(e) => setTwoFaPassword(e.target.value)}
+                                        />
+                                    </div>
+                                    <DialogFooter>
+                                        <Button
+                                            disabled={isPendingTwoFa}
+                                            onClick={async () => {
+                                                if (twoFaPassword.length < 8) {
+                                                    toast.error("Password must be at least 8 characters");
+                                                    return;
+                                                }
+                                                setIsPendingTwoFa(true);
+                                                if (session?.user.twoFactorEnabled) {
+                                                    const res = await authClient.twoFactor.disable({
+                                                        //@ts-ignore
+                                                        password: twoFaPassword,
+                                                        fetchOptions: {
+                                                            onError(context) {
+                                                                toast.error(context.error.message);
+                                                            },
+                                                            onSuccess() {
+                                                                toast("2FA disabled successfully");
+                                                                setTwoFactorDialog(false);
+                                                            },
+                                                        },
+                                                    });
+                                                } else {
+                                                    const res = await authClient.twoFactor.enable({
+                                                        password: twoFaPassword,
+                                                        fetchOptions: {
+                                                            onError(context) {
+                                                                toast.error(context.error.message);
+                                                            },
+                                                            onSuccess() {
+                                                                toast.success("2FA enabled successfully");
+                                                                setTwoFactorDialog(false);
+                                                            },
+                                                        },
+                                                    });
+                                                }
+                                                setIsPendingTwoFa(false);
+                                                setTwoFaPassword("");
+                                            }}
+                                        >
+                                            {isPendingTwoFa ? (
+                                                <Loader2 size={15} className="animate-spin" />
+                                            ) : session?.user.twoFactorEnabled ? (
+                                                "Disable 2FA"
+                                            ) : (
+                                                "Enable 2FA"
+                                            )}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </div>
                 </div>
@@ -310,7 +450,7 @@ function ChangePassword() {
                                 return;
                             }
                             setLoading(true);
-                            const res = await user.changePassword({
+                            const res = await authClient.user.changePassword({
                                 newPassword: newPassword,
                                 currentPassword: currentPassword,
                                 revokeOtherSessions: signOutDevices,
@@ -377,7 +517,7 @@ function EditUserDialog(props: { session: Session | null }) {
                     <Input
                         id="name"
                         type="name"
-                        // placeholder={session?.user?.name}
+                        placeholder={props.session?.user.name}
                         required
                         onChange={(e) => {
                             setName(e.target.value);
@@ -391,7 +531,7 @@ function EditUserDialog(props: { session: Session | null }) {
                                     <img
                                         src={imagePreview}
                                         alt="Profile preview"
-                                        // objectFit="cover"
+                                        className="object-cover w-full h-full"
                                     />
                                 </div>
                             )}
@@ -421,20 +561,19 @@ function EditUserDialog(props: { session: Session | null }) {
                         disabled={isLoading}
                         onClick={async () => {
                             setIsLoading(true);
-                            await user.update({
+                            await authClient.user.update({
                                 image: image ? await convertImageToBase64(image) : undefined,
                                 name: name ? name : undefined,
                                 fetchOptions: {
                                     onSuccess: () => {
                                         toast.success("User updated successfully");
                                     },
-                                    onError: (error: any) => {
+                                    onError: (error) => {
                                         toast.error(error.error.message);
                                     },
                                 },
                             });
                             setName("");
-                            // router.refresh();
                             setImage(null);
                             setImagePreview(null);
                             setIsLoading(false);
@@ -456,7 +595,6 @@ function EditUserDialog(props: { session: Session | null }) {
 function AddPasskey() {
     const [isOpen, setIsOpen] = useState(false);
     const [passkeyName, setPasskeyName] = useState("");
-    // const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleAddPasskey = async () => {
@@ -467,9 +605,8 @@ function AddPasskey() {
         setIsLoading(true);
         const res = await authClient.passkey.addPasskey({
             name: passkeyName,
-        })
+        });
         if (res?.error) {
-            console.log(res)
             toast.error(res?.error.message);
         } else {
             setIsOpen(false);
@@ -586,7 +723,7 @@ function AddPasskey() {
 //                                                             toast("Passkey deleted successfully");
 //                                                             setIsDeletePasskey(false);
 //                                                         },
-//                                                         onError: (error: any) => {
+//                                                         onError: (error) => {
 //                                                             toast.error(error.error.message);
 //                                                             setIsDeletePasskey(false);
 //                                                         },

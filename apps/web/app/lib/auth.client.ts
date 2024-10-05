@@ -9,6 +9,7 @@ export const authClient = createAuthClient({
     baseURL: "http://localhost:5173",
     plugins: [
         passkeyClient(),
+        twoFactorClient()
     ]
 })
 

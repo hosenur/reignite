@@ -2,9 +2,27 @@ import { ActionFunctionArgs, Form, Link } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { authClient } from '~/lib/auth.client'
+import { z } from 'zod'
 
 export async function clientAction({ request }: ActionFunctionArgs) {
-    console.log(Object.fromEntries(await request.formData()))
+    const signInSchema = z.object({
+        email: z.string().email(),
+        password: z.string()
+    })
+    const formData = Object.fromEntries(await request.formData())
+    const parsedData = await signInSchema.safeParseAsync(formData)
+    if (parsedData.error) {
+        throw parsedData.error
+    }
+    authClient.signIn.email(parsedData.data,{
+        onSuccess(ctx) {
+            console.log(ctx)
+        },
+        onError(ctx) {
+            console.log(ctx)
+        }
+    })
 
 }
 export default function SignInPage() {

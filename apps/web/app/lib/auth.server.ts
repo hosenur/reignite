@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { VerifyEmail } from "../../emails/verify-email";
 import { prisma } from "./prisma";
-import { resend } from "./resend";
-import { passkey } from "better-auth/plugins"
+import { passkey, twoFactor } from "better-auth/plugins"
 import { redirect } from "react-router";
 
 
@@ -12,28 +10,14 @@ import { redirect } from "react-router";
 
 export const auth = betterAuth({
     plugins: [
-        passkey()
+        passkey(),
+        twoFactor()
     ],
     database: prismaAdapter(prisma, {
         provider: "postgresql"
     }),
     emailAndPassword: {
         enabled: true,
-        async sendVerificationEmail(email, url) {
-
-            await resend.emails.send({
-                from: 'reignite@hosenur.email',
-                to: email,
-                subject: 'Verify your email',
-                react: <VerifyEmail magicLink={url} />
-            }).catch((err) => {
-                console.log(err)
-            }).then((res) => {
-                console.log(res)
-            })
-
-
-        }
     }
 })
 
